@@ -1,0 +1,24 @@
+{
+    "orgname":"rusmith",
+    "projectname":"Demos",
+    "reponame":"Demos",
+    "newbranchname":"autocreate",
+    "filename":"demoparamsfile.json",
+    "subparams": {        
+        "BudgetAmount": "1000",
+        "CIDR": "192.168.0.0/24",
+        "CostCentre": "Elbonia",
+        "Environment": "NonProd",
+        "location":"Uk South",
+        "OwnerEmail":"core@demo.com",
+        "OwnerID":"Core1234",
+        "ParentMG":"Sandbox",
+        "Peer":"HubVNet",
+        "Sandbox":"true",
+        "Service":"Core",
+        "subscriptionName":"MSFTTestSub",
+        "subscriptionWorkload":"Ado Demo",
+        "Team":"Core",
+        "TemplateFile":""
+    }
+}

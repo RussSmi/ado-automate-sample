@@ -1,0 +1,13 @@
+{ // Remove the .new from the filename and populate the fields below to enable local debugging
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "WORKFLOWS_TENANT_ID": "",
+    "WORKFLOWS_SUBSCRIPTION_ID": "",
+    "WORKFLOWS_RESOURCE_GROUP_NAME": "",
+    "WORKFLOWS_LOCATION_NAME": "uksouth",
+    "WORKFLOWS_MANAGEMENT_BASE_URI": "https://management.azure.com/",
+    "visualstudioteamservices-connectionKey": ""
+  }
+}

@@ -1,0 +1,584 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Response": {
+                "type": "Response",
+                "kind": "http",
+                "inputs": {
+                    "statusCode": 200,
+                    "body": "Completed"
+                },
+                "runAfter": {
+                    "For_each_Repo": [
+                        "Succeeded"
+                    ]
+                }
+            },
+            "Initialize_RepoId_variable": {
+                "type": "InitializeVariable",
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "varRepoId",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {}
+            },
+            "List_Git_repositories": {
+                "type": "ApiConnection",
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "referenceName": "visualstudioteamservices"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/@{encodeURIComponent('Demos')}/_apis/git/repositories",
+                    "queries": {
+                        "account": "rusmith"
+                    }
+                },
+                "runAfter": {
+                    "Initialize_RepoId_variable": [
+                        "Succeeded"
+                    ]
+                }
+            },
+            "For_each_Repo": {
+                "type": "Foreach",
+                "foreach": "@body('List_Git_repositories')?['value']",
+                "actions": {
+                    "Match_Repo_Name": {
+                        "type": "If",
+                        "expression": {
+                            "and": [
+                                {
+                                    "equals": [
+                                        "@items('For_each_Repo')?['name']",
+                                        "@triggerBody()?['reponame']"
+                                    ]
+                                }
+                            ]
+                        },
+                        "actions": {
+                            "Set_varRepoId_variable": {
+                                "type": "SetVariable",
+                                "inputs": {
+                                    "name": "varRepoId",
+                                    "value": "@items('For_each_Repo')?['id']"
+                                },
+                                "runAfter": {}
+                            },
+                            "Send_an_HTTP_request_to_Azure_DevOps_-_Get_head_Ref": {
+                                "type": "ApiConnection",
+                                "inputs": {
+                                    "host": {
+                                        "connection": {
+                                            "referenceName": "visualstudioteamservices"
+                                        }
+                                    },
+                                    "method": "post",
+                                    "body": {
+                                        "Method": "GET",
+                                        "Uri": "@{triggerBody()?['projectname']}/_apis/git/repositories/@{variables('varRepoId')}/refs?filter=heads/main&api-version=5.1"
+                                    },
+                                    "path": "/httprequest",
+                                    "queries": {
+                                        "account": "@triggerBody()?['orgname']"
+                                    }
+                                },
+                                "runAfter": {
+                                    "Set_varRepoId_variable": [
+                                        "Succeeded"
+                                    ]
+                                }
+                            },
+                            "Parse_API_Result": {
+                                "type": "ParseJson",
+                                "inputs": {
+                                    "content": "@body('Send_an_HTTP_request_to_Azure_DevOps_-_Get_head_Ref')",
+                                    "schema": {
+                                        "properties": {
+                                            "count": {
+                                                "type": "integer"
+                                            },
+                                            "value": {
+                                                "items": {
+                                                    "properties": {
+                                                        "creator": {
+                                                            "properties": {
+                                                                "_links": {
+                                                                    "properties": {
+                                                                        "avatar": {
+                                                                            "properties": {
+                                                                                "href": {
+                                                                                    "type": "string"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "descriptor": {
+                                                                    "type": "string"
+                                                                },
+                                                                "displayName": {
+                                                                    "type": "string"
+                                                                },
+                                                                "id": {
+                                                                    "type": "string"
+                                                                },
+                                                                "imageUrl": {
+                                                                    "type": "string"
+                                                                },
+                                                                "uniqueName": {
+                                                                    "type": "string"
+                                                                },
+                                                                "url": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "name": {
+                                                            "type": "string"
+                                                        },
+                                                        "objectId": {
+                                                            "type": "string"
+                                                        },
+                                                        "url": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "name",
+                                                        "objectId",
+                                                        "creator",
+                                                        "url"
+                                                    ],
+                                                    "type": "object"
+                                                },
+                                                "type": "array"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "runAfter": {
+                                    "Send_an_HTTP_request_to_Azure_DevOps_-_Get_head_Ref": [
+                                        "Succeeded"
+                                    ]
+                                }
+                            },
+                            "For_each": {
+                                "type": "Foreach",
+                                "foreach": "@body('Parse_API_Result')?['value']",
+                                "actions": {
+                                    "Commit_File_To_Azure_DevOps": {
+                                        "type": "ApiConnection",
+                                        "inputs": {
+                                            "host": {
+                                                "connection": {
+                                                    "referenceName": "visualstudioteamservices"
+                                                }
+                                            },
+                                            "method": "post",
+                                            "body": {
+                                                "Method": "POST",
+                                                "Uri": "@{triggerBody()?['projectname']}/_apis/git/repositories/@{variables('varRepoId')}/pushes?filter=heads/main&api-version=5.1",
+                                                "Body": "{\n  \"refUpdates\": [\n    {\n      \"name\": \"refs/heads/@{triggerBody()?['newbranchname']}\",\n      \"oldObjectId\": \"@{items('For_each')?['objectId']}\"\n    }\n  ],\n  \"commits\": [\n    {\n      \"comment\": \"Auto generated commit from ADO API automation\",\n      \"changes\": [\n        {\n          \"changeType\": \"add\",\n          \"item\": {\n            \"path\": \"/@{triggerBody()?['filename']}\"\n          },\n          \"newContent\": {\n            \"content\": \"@{base64(triggerBody())}\",\n            \"contentType\": \"base64encoded\"\n          }\n        }\n      ]\n    }\n  ]\n}"
+                                            },
+                                            "path": "/httprequest",
+                                            "queries": {
+                                                "account": "@triggerBody()?['orgname']"
+                                            }
+                                        },
+                                        "runAfter": {}
+                                    },
+                                    "Parse_Commit_Result": {
+                                        "type": "ParseJson",
+                                        "inputs": {
+                                            "content": "@body('Commit_File_To_Azure_DevOps')",
+                                            "schema": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "commits": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "treeId": {
+                                                                    "type": "string"
+                                                                },
+                                                                "commitId": {
+                                                                    "type": "string"
+                                                                },
+                                                                "author": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "name": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "email": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "date": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "committer": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "name": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "email": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "date": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "comment": {
+                                                                    "type": "string"
+                                                                },
+                                                                "parents": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "url": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "treeId",
+                                                                "commitId",
+                                                                "author",
+                                                                "committer",
+                                                                "comment",
+                                                                "parents",
+                                                                "url"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "refUpdates": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "repositoryId": {
+                                                                    "type": "string"
+                                                                },
+                                                                "name": {
+                                                                    "type": "string"
+                                                                },
+                                                                "oldObjectId": {
+                                                                    "type": "string"
+                                                                },
+                                                                "newObjectId": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "repositoryId",
+                                                                "name",
+                                                                "oldObjectId",
+                                                                "newObjectId"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "repository": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            },
+                                                            "url": {
+                                                                "type": "string"
+                                                            },
+                                                            "project": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "url": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "state": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "revision": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "visibility": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "lastUpdateTime": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "size": {
+                                                                "type": "integer"
+                                                            },
+                                                            "remoteUrl": {
+                                                                "type": "string"
+                                                            },
+                                                            "sshUrl": {
+                                                                "type": "string"
+                                                            },
+                                                            "webUrl": {
+                                                                "type": "string"
+                                                            },
+                                                            "isDisabled": {
+                                                                "type": "boolean"
+                                                            }
+                                                        }
+                                                    },
+                                                    "pushedBy": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "displayName": {
+                                                                "type": "string"
+                                                            },
+                                                            "url": {
+                                                                "type": "string"
+                                                            },
+                                                            "_links": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "avatar": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "href": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "uniqueName": {
+                                                                "type": "string"
+                                                            },
+                                                            "imageUrl": {
+                                                                "type": "string"
+                                                            },
+                                                            "descriptor": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    },
+                                                    "pushId": {
+                                                        "type": "integer"
+                                                    },
+                                                    "date": {
+                                                        "type": "string"
+                                                    },
+                                                    "url": {
+                                                        "type": "string"
+                                                    },
+                                                    "_links": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "self": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "href": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "repository": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "href": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "commits": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "href": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "pusher": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "href": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "refs": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "href": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "runAfter": {
+                                            "Commit_File_To_Azure_DevOps": [
+                                                "Succeeded"
+                                            ]
+                                        }
+                                    },
+                                    "For_each_2": {
+                                        "type": "Foreach",
+                                        "foreach": "@body('Parse_Commit_Result')?['refUpdates']",
+                                        "actions": {
+                                            "Send_an_HTTP_request_to_Azure_DevOps": {
+                                                "type": "ApiConnection",
+                                                "inputs": {
+                                                    "host": {
+                                                        "connection": {
+                                                            "referenceName": "visualstudioteamservices"
+                                                        }
+                                                    },
+                                                    "method": "post",
+                                                    "body": {
+                                                        "Method": "POST",
+                                                        "Uri": "@{triggerBody()?['projectname']}/_apis/git/repositories/@{variables('varRepoId')}/pullrequests?api-version=6.0",
+                                                        "Body": "{\n  \"sourceRefName\": \"refs/heads/@{triggerBody()?['newbranchname']}\",\n  \"targetRefName\": \"refs/heads/main\",\n  \"title\": \"Auto Generated PR - New Sub\",\n  \"description\": \"Adding parameters for a new subscription\"\n}"
+                                                    },
+                                                    "path": "/httprequest",
+                                                    "queries": {
+                                                        "account": "@triggerBody()?['orgname']"
+                                                    }
+                                                },
+                                                "runAfter": {}
+                                            }
+                                        },
+                                        "runAfter": {
+                                            "Parse_Commit_Result": [
+                                                "Succeeded"
+                                            ]
+                                        }
+                                    }
+                                },
+                                "runAfter": {
+                                    "Parse_API_Result": [
+                                        "Succeeded"
+                                    ]
+                                }
+                            }
+                        },
+                        "runAfter": {}
+                    }
+                },
+                "runAfter": {
+                    "List_Git_repositories": [
+                        "Succeeded"
+                    ]
+                }
+            }
+        },
+        "triggers": {
+            "manual": {
+                "type": "Request",
+                "kind": "Http",
+                "inputs": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "orgname": {
+                                "type": "string"
+                            },
+                            "projectname": {
+                                "type": "string"
+                            },
+                            "reponame": {
+                                "type": "string"
+                            },
+                            "newbranchname": {
+                                "type": "string"
+                            },
+                            "filename": {
+                                "type": "string"
+                            },
+                            "subparams": {
+                                "type": "object",
+                                "properties": {
+                                    "BudgetAmount": {
+                                        "type": "string"
+                                    },
+                                    "CIDR": {
+                                        "type": "string"
+                                    },
+                                    "CostCentre": {
+                                        "type": "string"
+                                    },
+                                    "Environment": {
+                                        "type": "string"
+                                    },
+                                    "location": {
+                                        "type": "string"
+                                    },
+                                    "OwnerEmail": {
+                                        "type": "string"
+                                    },
+                                    "OwnerID": {
+                                        "type": "string"
+                                    },
+                                    "ParentMG": {
+                                        "type": "string"
+                                    },
+                                    "Peer": {
+                                        "type": "string"
+                                    },
+                                    "Sandbox": {
+                                        "type": "string"
+                                    },
+                                    "Service": {
+                                        "type": "string"
+                                    },
+                                    "subscriptionName": {
+                                        "type": "string"
+                                    },
+                                    "subscriptionWorkload": {
+                                        "type": "string"
+                                    },
+                                    "Team": {
+                                        "type": "string"
+                                    },
+                                    "TemplateFile": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {}
+    },
+    "kind": "Stateful"
+}

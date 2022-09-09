@@ -1,0 +1,5 @@
+###
+POST http://localhost:7071/api/la-commitfile/triggers/manual/invoke?api-version=2022-05-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=NUUAvG4Pz0IJrHlV4yGFhKz6S0hs55PjBzVSO6Ep6M8
+Content-Type: application/json
+
+< .\input.json
