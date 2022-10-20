@@ -2,12 +2,12 @@
   "managedApiConnections": {
     "visualstudioteamservices": {
       "api": {
-        "id": "/subscriptions/ca9ae6cf-2ab2-48d0-981d-c1030fd74a64/providers/Microsoft.Web/locations/uksouth/managedApis/visualstudioteamservices"
+        "id": "/subscriptions/@appsetting('WORKFLOWS_SUBSCRIPTION_ID')/providers/Microsoft.Web/locations/uksouth/managedApis/visualstudioteamservices"
       },
       "connection": {
-        "id": "/subscriptions/ca9ae6cf-2ab2-48d0-981d-c1030fd74a64/resourceGroups/rg-frasersado-dev/providers/Microsoft.Web/connections/visualstudioteamservices-2"
+        "id": "/subscriptions/@appsetting('WORKFLOWS_SUBSCRIPTION_ID')/resourceGroups/@appsetting('WORKFLOWS_RESOURCE_GROUP_NAME')/providers/Microsoft.Web/connections/visualstudioteamservices"
       },
-      "connectionRuntimeUrl": "https://06b137eff4fe3023.01.common.logic-uksouth.azure-apihub.net/apim/visualstudioteamservices/112bb1e2053a4a0994597c8085e1f88c/",
+      "connectionRuntimeUrl": "https://06b137eff4fe3023.01.common.logic-uksouth.azure-apihub.net/apim/visualstudioteamservices/fda0c5689f234389a3a2c996be770b0c/",
       "authentication": {
         "type": "Raw",
         "scheme": "Key",
