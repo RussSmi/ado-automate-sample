@@ -38,7 +38,7 @@
                     "method": "get",
                     "path": "/@{encodeURIComponent('Demos')}/_apis/git/repositories",
                     "queries": {
-                        "account": "rusmith"
+                        "account": "@triggerBody()?['orgname']"
                     }
                 },
                 "runAfter": {

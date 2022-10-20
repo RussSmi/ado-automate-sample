@@ -1,0 +1,320 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "HTTP_GET_Refs_From_GitHub": {
+                "type": "Http",
+                "inputs": {
+                    "method": "GET",
+                    "uri": "https://api.github.com/repos/@{triggerBody()?['owner']}/@{triggerBody()?['repo']}/git/refs/heads",
+                    "headers": {
+                        "Accept": "application/vnd.github+json",
+                        "Authorization": "@appsetting('GitHubPATSecret')"
+                    }
+                },
+                "runAfter": {
+                    "Initialize_variable_lastResponseCode": [
+                        "Succeeded"
+                    ]
+                }
+            },
+            "Response_Failed_To_Get_Refs": {
+                "type": "Response",
+                "kind": "http",
+                "inputs": {
+                    "statusCode": "@outputs('HTTP_GET_Refs_From_GitHub')['statusCode']",
+                    "body": "@body('HTTP_GET_Refs_From_GitHub')"
+                },
+                "runAfter": {
+                    "HTTP_GET_Refs_From_GitHub": [
+                        "FAILED"
+                    ]
+                }
+            },
+            "Parse_JSON_Refs": {
+                "type": "ParseJson",
+                "inputs": {
+                    "content": "@body('HTTP_GET_Refs_From_GitHub')",
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "ref": {
+                                    "type": "string"
+                                },
+                                "node_id": {
+                                    "type": "string"
+                                },
+                                "url": {
+                                    "type": "string"
+                                },
+                                "object": {
+                                    "type": "object",
+                                    "properties": {
+                                        "sha": {
+                                            "type": "string"
+                                        },
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "url": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "required": [
+                                "ref",
+                                "node_id",
+                                "url",
+                                "object"
+                            ]
+                        }
+                    }
+                },
+                "runAfter": {
+                    "HTTP_GET_Refs_From_GitHub": [
+                        "Succeeded"
+                    ]
+                }
+            },
+            "For_each": {
+                "type": "Foreach",
+                "foreach": "@body('Parse_JSON_Refs')",
+                "actions": {
+                    "Condition": {
+                        "type": "If",
+                        "expression": {
+                            "and": [
+                                {
+                                    "equals": [
+                                        "@items('For_each')?['ref']",
+                                        "refs/heads/main"
+                                    ]
+                                }
+                            ]
+                        },
+                        "actions": {
+                            "HTTP_Commit_File_to_GitHub": {
+                                "type": "Http",
+                                "inputs": {
+                                    "method": "PUT",
+                                    "uri": "https://api.github.com/repos/@{triggerBody()?['owner']}/@{triggerBody()?['repo']}/contents/@{triggerBody()?['filename']}",
+                                    "headers": {
+                                        "Accept": "application/vnd.github+json",
+                                        "Authorization": "Bearer @{appsetting('GitHubPATSecret')}"
+                                    },
+                                    "body": {
+                                        "message": "Automated commit from logic app",
+                                        "branch": "@{triggerBody()?['newbranchname']}",
+                                        "content": "@{base64(triggerBody()?['subparams'])}"
+                                    }
+                                },
+                                "runAfter": {
+                                    "HTTP_POST_New_Ref_(Branch)": [
+                                        "Succeeded"
+                                    ]
+                                }
+                            },
+                            "HTTP_POST_Pull_Request": {
+                                "type": "Http",
+                                "inputs": {
+                                    "method": "POST",
+                                    "uri": "https://api.github.com/repos/@{triggerBody()?['owner']}/@{triggerBody()?['repo']}/pulls",
+                                    "headers": {
+                                        "Accept": "application/vnd.github+json",
+                                        "Authorization": "Bearer @{appsetting('GitHubPATSecret')}"
+                                    },
+                                    "body": {
+                                        "title": "Auto generated pull request - Approve Subscription Details",
+                                        "body": "Please pull these changes to when ready to trigger the subscription vend process",
+                                        "head": "@{triggerBody()?['newbranchname']}",
+                                        "base": "main"
+                                    }
+                                },
+                                "runAfter": {
+                                    "HTTP_Commit_File_to_GitHub": [
+                                        "Succeeded"
+                                    ]
+                                }
+                            },
+                            "Set_variable_Response_Code": {
+                                "type": "SetVariable",
+                                "inputs": {
+                                    "name": "lastResponseCode",
+                                    "value": "@{outputs('HTTP_POST_New_Ref_(Branch)')['statusCode']}"
+                                },
+                                "runAfter": {
+                                    "HTTP_POST_New_Ref_(Branch)": [
+                                        "Succeeded",
+                                        "FAILED"
+                                    ]
+                                }
+                            },
+                            "HTTP_POST_New_Ref_(Branch)": {
+                                "type": "Http",
+                                "inputs": {
+                                    "method": "POST",
+                                    "uri": "https://api.github.com/repos/@{triggerBody()?['owner']}/@{triggerBody()?['repo']}/git/refs",
+                                    "headers": {
+                                        "Accept": "application/vnd.github+json",
+                                        "Authorization": "Bearer @{appsetting('GitHubPATSecret')}"
+                                    },
+                                    "body": {
+                                        "ref": "refs/heads/@{triggerBody()?['newbranchname']}",
+                                        "sha": "@{items('For_each')?['object']?['sha']}"
+                                    }
+                                },
+                                "runAfter": {}
+                            },
+                            "Set_variable_Response_Code_2": {
+                                "type": "SetVariable",
+                                "inputs": {
+                                    "name": "lastResponseCode",
+                                    "value": "@{outputs('HTTP_Commit_File_to_GitHub')['statusCode']}"
+                                },
+                                "runAfter": {
+                                    "HTTP_Commit_File_to_GitHub": [
+                                        "Succeeded",
+                                        "FAILED"
+                                    ]
+                                }
+                            },
+                            "Set_variable_Response_Code_3": {
+                                "type": "SetVariable",
+                                "inputs": {
+                                    "name": "lastResponseCode",
+                                    "value": "@{outputs('HTTP_POST_Pull_Request')['statusCode']}"
+                                },
+                                "runAfter": {
+                                    "HTTP_POST_Pull_Request": [
+                                        "Succeeded"
+                                    ]
+                                }
+                            }
+                        },
+                        "runAfter": {}
+                    }
+                },
+                "runAfter": {
+                    "Parse_JSON_Refs": [
+                        "Succeeded"
+                    ]
+                },
+                "runtimeConfiguration": {
+                    "concurrency": {
+                        "repetitions": 1
+                    }
+                }
+            },
+            "Initialize_variable_lastResponseCode": {
+                "type": "InitializeVariable",
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "lastResponseCode",
+                            "type": "string",
+                            "value": "200"
+                        }
+                    ]
+                },
+                "runAfter": {}
+            },
+            "Response": {
+                "type": "Response",
+                "kind": "http",
+                "inputs": {
+                    "statusCode": 200,
+                    "body": "Process commited, last response from GitHub: @{variables('lastResponseCode')}"
+                },
+                "runAfter": {
+                    "For_each": [
+                        "Succeeded"
+                    ]
+                }
+            }
+        },
+        "triggers": {
+            "manual": {
+                "type": "Request",
+                "kind": "Http",
+                "inputs": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "owner": {
+                                "type": "string"
+                            },
+                            "repo": {
+                                "type": "string"
+                            },
+                            "newbranchname": {
+                                "type": "string"
+                            },
+                            "PAT": {
+                                "type": "string"
+                            },
+                            "filename": {
+                                "type": "string"
+                            },
+                            "subparams": {
+                                "type": "object",
+                                "properties": {
+                                    "BudgetAmount": {
+                                        "type": "string"
+                                    },
+                                    "CIDR": {
+                                        "type": "string"
+                                    },
+                                    "CostCentre": {
+                                        "type": "string"
+                                    },
+                                    "Environment": {
+                                        "type": "string"
+                                    },
+                                    "location": {
+                                        "type": "string"
+                                    },
+                                    "OwnerEmail": {
+                                        "type": "string"
+                                    },
+                                    "OwnerID": {
+                                        "type": "string"
+                                    },
+                                    "ParentMG": {
+                                        "type": "string"
+                                    },
+                                    "Peer": {
+                                        "type": "string"
+                                    },
+                                    "Sandbox": {
+                                        "type": "string"
+                                    },
+                                    "Service": {
+                                        "type": "string"
+                                    },
+                                    "subscriptionName": {
+                                        "type": "string"
+                                    },
+                                    "subscriptionWorkload": {
+                                        "type": "string"
+                                    },
+                                    "Team": {
+                                        "type": "string"
+                                    },
+                                    "TemplateFile": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {}
+    },
+    "kind": "Stateful"
+}

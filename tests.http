@@ -3,3 +3,9 @@ POST http://localhost:7071/api/la-commitfile/triggers/manual/invoke?api-version=
 Content-Type: application/json
 
 < .\input.json
+
+###
+post http://localhost:7071/api/la-commitfile-gh/triggers/manual/invoke?api-version=2022-05-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=qDnziNOhEJ3CbBnScZx65tAcgaiw8IKp3c9G2LJtJow
+Content-Type: application/json
+
+< .\inputgh.json
