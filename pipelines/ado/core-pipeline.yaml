@@ -75,7 +75,7 @@ stages:
                 connections.json
                 Artifacts/**/*
                 la-commitfile/**
-                la-commitfilegh/**
+                la-commitfile-gh/**
               TargetFolder: 'logic-app'
 
           - task: ArchiveFiles@2
