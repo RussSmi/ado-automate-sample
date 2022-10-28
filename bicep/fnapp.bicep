@@ -7,7 +7,7 @@ param storageAccountSku string = 'Standard_LRS'
 var name = 'commitfile'
 var logicAppName = 'logic-app-${name}-${environment}'
 var minimumElasticSize = 1
- var maximumElasticSize = 3
+var maximumElasticSize = 3
 
 resource logicAppStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: 'st4logicapp${name}${environment}'
