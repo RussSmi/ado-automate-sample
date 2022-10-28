@@ -137,6 +137,10 @@ resource siteLogicApp 'Microsoft.Web/sites@2021-02-01' = {
           name: 'api-ado-auth-scheme'
           value: ''
         }
+        {
+          name: 'WORKFLOWS_SUBSCRIPTION_ID'
+          value: subscription().subscriptionId
+        }
 
       ]
       use32BitWorkerProcess: true
