@@ -7,10 +7,10 @@
       "connection": {
         "id": "/subscriptions/@appsetting('WORKFLOWS_SUBSCRIPTION_ID')/resourceGroups/@appsetting('WORKFLOWS_RESOURCE_GROUP_NAME')/providers/Microsoft.Web/connections/visualstudioteamservices"
       },
-      "connectionRuntimeUrl": "https://06b137eff4fe3023.01.common.logic-uksouth.azure-apihub.net/apim/visualstudioteamservices/fda0c5689f234389a3a2c996be770b0c/",
+      "connectionRuntimeUrl": "@appsetting('api-ado-connectionRuntimeUrl')",
       "authentication": {
-        "type": "Raw",
-        "scheme": "Key",
+        "type": "@appsetting('api-ado-auth-type')",
+        "scheme": "@appsetting('api-ado-auth-scheme')",
         "parameter": "@appsetting('visualstudioteamservices-connectionKey')"
       }
     }

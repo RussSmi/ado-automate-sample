@@ -125,6 +125,19 @@ resource siteLogicApp 'Microsoft.Web/sites@2021-02-01' = {
           name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
           value: applicationInsightsLogicApp.properties.ConnectionString
         }        
+        {
+          name: 'api-ado-connectionRuntimeUrl'
+          value: ''
+        }
+        {
+          name: 'api-ado-auth-type'
+          value: 'ManagedServiceIdentity'
+        }
+        {
+          name: 'api-ado-auth-scheme'
+          value: ''
+        }
+
       ]
       use32BitWorkerProcess: true
     }

@@ -15,7 +15,7 @@ variables:
   prodAzureServiceConnection: 'russ-airs'
   location: 'uksouth'
   resourceGroupName: 'rg-devops-automate'
-
+  logicAppName: 'logic-app-commit-file'
 
 stages:
 - stage: 'dev_deploy'
@@ -32,7 +32,9 @@ stages:
         deploy:
           steps:
           - checkout: self
+
           - task: AzureCLI@2
+            displayName: 'Azure CLI Create RG and deploy Key Vault'
             inputs:
               azureSubscription: $(devAzureServiceConnection)
               scriptType: bash
@@ -43,7 +45,53 @@ stages:
                 cd bicep
                 az group create --name $(resourceGroupName) --location $(location)
                 az deployment group create --name kvdeploy -g $(resourceGroupName) --template-file keyvault.bicep --parameters @keyvault.parameters.json
+
+          - task: AzureCLI@2
+            displayName: 'Azure CLI Deploy Function App'
+            inputs:
+              azureSubscription: $(devAzureServiceConnection)
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                cd bicep
                 az deployment group create --name fnappdeploy -g $(resourceGroupName) --template-file fnapp.bicep
+
+          - task: AzureCLI@2
+            displayName: 'Azure CLI Deploy API Connection'
+            inputs:
+              azureSubscription: $(devAzureServiceConnection)
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                cd bicep
                 az deployment group create --name apiconndeploy -g $(resourceGroupName) --template-file apiconnections.bicep
 
-                 
+          - task: CopyFiles@2
+            displayName: 'Copy Logic App Files to logic-app'
+            inputs:
+              SourceFolder: '$(System.DefaultWorkingDirectory)'
+              Contents: |
+                host.json
+                connections.json
+                Artifacts/**/*
+                la-commitfile/**
+                la-commitfilegh/**
+              TargetFolder: 'logic-app'
+
+          - task: ArchiveFiles@2
+            displayName: 'Create workflows ZIP'
+            inputs: 
+              rootFolderOrFile: '$(System.DefaultWorkingDirectory)/logic-app'
+              includeRootFolder: false
+              archiveType: 'zip'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/logic-app/$(Build.BuildId).zip'
+              replaceExistingArchive: true
+
+          - task: AzureFunctionApp@1
+            displayName: 'Deploy workflows to Function App'
+            inputs:
+              azureSubscription: $(devAzureServiceConnection)
+              appName: '$(logicAppName)'
+              appType: 'workflowapp'
+              package: '$(Build.ArtifactStagingDirectory)/logic-app/$(Build.BuildId).zip'
+              deploymentMethod: 'zipDeploy'                 
