@@ -127,7 +127,7 @@ resource siteLogicApp 'Microsoft.Web/sites@2021-02-01' = {
         }        
         {
           name: 'api-ado-connectionRuntimeUrl'
-          value: ''
+          value: 'https://06b137eff4fe3023.01.common.logic-uksouth.azure-apihub.net/apim/visualstudioteamservices/36e660ba523f4793801d61ef1471f773'
         }
         {
           name: 'api-ado-auth-type'
@@ -140,6 +140,10 @@ resource siteLogicApp 'Microsoft.Web/sites@2021-02-01' = {
         {
           name: 'WORKFLOWS_SUBSCRIPTION_ID'
           value: subscription().subscriptionId
+        }
+        {
+          name: 'WORKFLOWS_RESOURCE_GROUP_NAME'
+          value: resourceGroup().name
         }
 
       ]
