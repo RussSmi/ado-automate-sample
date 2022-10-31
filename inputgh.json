@@ -1,7 +1,7 @@
 {
     "owner":"RussSmi",
     "repo":"Demos",
-    "newbranchname":"autocreate8",
+    "newbranchname":"autocreate9",
     "filename":"demoparamsfile.json",
     "subparams": {        
         "BudgetAmount": "1000",

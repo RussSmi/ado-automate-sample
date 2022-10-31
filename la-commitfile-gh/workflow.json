@@ -198,7 +198,7 @@
                     }
                 },
                 "runAfter": {
-                    "Parse_JSON_Refs": [
+                    "Initialize_variable": [
                         "Succeeded"
                     ]
                 },
@@ -230,6 +230,23 @@
                 },
                 "runAfter": {
                     "For_each": [
+                        "Succeeded"
+                    ]
+                }
+            },
+            "Initialize_variable": {
+                "type": "InitializeVariable",
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "debug",
+                            "type": "string",
+                            "value": "@{appsetting('GitHubPATSecret')}"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Parse_JSON_Refs": [
                         "Succeeded"
                     ]
                 }
