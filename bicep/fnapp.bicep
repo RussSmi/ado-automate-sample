@@ -6,6 +6,7 @@ param storageAccountSku string = 'Standard_LRS'
 @description('The github PAT secret name')
 param githubPATSecretName string = 'GitHubPATSecret'
 
+
 var name = 'commitfile'
 var logicAppName = 'logic-app-${name}-${environment}'
 var minimumElasticSize = 1
@@ -74,11 +75,6 @@ resource logicAppStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 
 resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' existing = {
   name: keyVaultName
-}
-
-resource githubPATToken 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview' existing = { 
-  parent: keyVault
-  name: githubPATSecretName
 }
 
 resource secret 'Microsoft.KeyVault/vaults/secrets@2019-09-01' existing = {

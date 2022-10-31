@@ -22,6 +22,7 @@ param userObjId string
 @description('Name of KeyVault to Store SaS Token')
 var keyVaultName  = 'kvadoautomate${environment}'
 
+
 resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' = {
   name: keyVaultName
   
@@ -55,11 +56,19 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' = {
       family: 'A'
     }
   }
-  resource secret 'secrets' = {
-    name: githubPATSecretName
-    properties: {
-      value: githubPAT
-    }
-  }
 }
+
+resource secret 'Microsoft.KeyVault/vaults/secrets@2019-09-01' existing = {
+  name: '${keyVaultName}/${githubPATSecretName}'
+}
+
+resource secretKv 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = if (secret.id ?? true) {
+ name: githubPATSecretName
+ parent: keyVault
+ properties: {
+  value: githubPAT
+ }
+}
+
+
 
