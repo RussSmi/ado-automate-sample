@@ -163,7 +163,7 @@ resource siteLogicApp 'Microsoft.Web/sites@2021-02-01' = {
         }
         {
           name: 'GitHubPATSecret'
-          value: '@Microsoft.KeyVault(SecretUri=${secret.properties.secretUriWithVersion}'
+          value: '@Microsoft.KeyVault(SecretUri=${secret.properties.secretUriWithVersion})'
         }
       ]
       use32BitWorkerProcess: true
