@@ -168,3 +168,20 @@ resource siteLogicApp 'Microsoft.Web/sites@2021-02-01' = {
   }
 }
 
+resource kvaccess 'Microsoft.KeyVault/vaults/accessPolicies@2019-09-01' = {
+  name: 'add'
+  parent: keyVault
+  properties: {
+    accessPolicies: [
+      {
+        applicationId: siteLogicApp.identity.principalId
+        objectId: siteLogicApp.identity.principalId
+        permissions: {
+          secrets: ['All']
+        }
+        tenantId: subscription().tenantId
+      }
+    ]
+  }
+}
+
