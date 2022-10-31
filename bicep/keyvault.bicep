@@ -62,7 +62,7 @@ resource secret 'Microsoft.KeyVault/vaults/secrets@2019-09-01' existing = {
   name: '${keyVaultName}/${githubPATSecretName}'
 }
 
-resource secretKv 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = if (secret.id ?? true) {
+resource secretKv 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = if (empty(secret.id)) {
  name: githubPATSecretName
  parent: keyVault
  properties: {
