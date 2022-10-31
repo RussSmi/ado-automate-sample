@@ -3,11 +3,15 @@ targetScope= 'resourceGroup'
 param environment string = 'dev'  /// Use prod for production
 param location string = resourceGroup().location
 param storageAccountSku string = 'Standard_LRS'
+@description('The github PAT secret name')
+param githubPATSecretName string = 'GitHubPATSecret'
 
 var name = 'commitfile'
 var logicAppName = 'logic-app-${name}-${environment}'
 var minimumElasticSize = 1
 var maximumElasticSize = 3
+@description('Name of KeyVault to Store SaS Token')
+var keyVaultName  = 'kvadoautomate${environment}'
 
 resource logicAppStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: 'st4logicapp${name}${environment}'
@@ -66,6 +70,10 @@ resource logicAppStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     RetentionInDays: 30
     WorkspaceResourceId: logAnalyticsWorkspacelogicApp.id
   }
+}
+
+resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' existing = {
+  name: keyVaultName
 }
 
 // App service containing the workflow runtime ///
@@ -148,7 +156,10 @@ resource siteLogicApp 'Microsoft.Web/sites@2021-02-01' = {
           name: 'WORKFLOWS_RESOURCE_GROUP_NAME'
           value: resourceGroup().name
         }
-
+        {
+          name: 'GitHubPATSecret'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${githubPATSecretName})'
+        }
       ]
       use32BitWorkerProcess: true
     }
