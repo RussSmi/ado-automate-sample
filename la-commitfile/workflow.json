@@ -36,7 +36,7 @@
                         }
                     },
                     "method": "get",
-                    "path": "/@{encodeURIComponent('Demos')}/_apis/git/repositories",
+                    "path": "/@{triggerBody()?['projectname']}/_apis/git/repositories",
                     "queries": {
                         "account": "@triggerBody()?['orgname']"
                     }

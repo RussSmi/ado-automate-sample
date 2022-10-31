@@ -3,11 +3,11 @@ targetScope= 'resourceGroup'
 @description('The location into which the resources should be deployed.')
 param location string = resourceGroup().location
 
+@description('The environment deployed to, used to build names, prod should be prod')
+param environment string = 'dev'
+
 @description('The Tenant Id that should be used throughout the deployment.')
 param tenantId string = subscription().tenantId
-
-@description('Name of KeyVault to Store SaS Token')
-param keyVaultName string = 'kvadoautomate'
 
 @description('A place holder secret for the PAT token')
 @secure()
@@ -18,6 +18,9 @@ param githubPATSecretName string = 'GitHubPATSecret'
 
 @description('Object Id to assign to kv policy, this can be got by running az ad user show --id <your email> --query id')
 param userObjId string
+
+@description('Name of KeyVault to Store SaS Token')
+var keyVaultName  = 'kvadoautomate${environment}'
 
 resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' = {
   name: keyVaultName
