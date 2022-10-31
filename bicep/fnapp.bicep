@@ -73,6 +73,9 @@ resource siteLogicApp 'Microsoft.Web/sites@2021-02-01' = {
   name: logicAppName
   location: location
   kind: 'functionapp,workflowapp'
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
     httpsOnly: true
     siteConfig: {
