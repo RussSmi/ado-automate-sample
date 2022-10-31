@@ -76,6 +76,11 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' existing = {
   name: keyVaultName
 }
 
+resource githubPATToken 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview' existing = { 
+  parent: keyVault
+  name: githubPATSecretName
+}
+
 // App service containing the workflow runtime ///
 resource siteLogicApp 'Microsoft.Web/sites@2021-02-01' = {
   name: logicAppName
@@ -158,7 +163,7 @@ resource siteLogicApp 'Microsoft.Web/sites@2021-02-01' = {
         }
         {
           name: 'GitHubPATSecret'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${githubPATSecretName})'
+          value: '@Microsoft.KeyVault(SecretUri=https://${keyVaultName}.vault.azure.net/secrets/${githubPATSecretName}/)'
         }
       ]
       use32BitWorkerProcess: true

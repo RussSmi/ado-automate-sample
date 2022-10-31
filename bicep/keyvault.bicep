@@ -55,12 +55,11 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' = {
       family: 'A'
     }
   }
-}
-
-resource githubPATToken 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview' = { 
-  parent: keyVault
-  name: githubPATSecretName
-  properties: {
-    value: githubPAT
+  resource secret 'secrets' = {
+    name: githubPATSecretName
+    properties: {
+      value: githubPAT
+    }
   }
 }
+

@@ -9,7 +9,9 @@
       },
       "connectionRuntimeUrl": "@appsetting('api-ado-connectionRuntimeUrl')",
       "authentication": {
-        "type": "ManagedServiceIdentity"
+        "type": "Raw",
+        "scheme": "@appsetting('api-ado-auth-scheme')",
+        "parameter": "@appsetting('visualstudioteamservices-connectionKey')"
       }
     }
   }

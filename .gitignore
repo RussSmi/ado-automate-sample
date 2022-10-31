@@ -5,3 +5,6 @@ obj
 appsettings.json
 local.settings.json
 .debug
+connections.json
+connections.json.portal
+
