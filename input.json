@@ -2,9 +2,8 @@
     "orgname":"rusmith",
     "projectname":"Demos",
     "reponame":"Demos",
-    "newbranchname":"autocreate31-10-22-2",
+    "newbranchname":"autocreate01-11-22-1",
     "filename":"demoparamsfile.json",
-    "PAT":"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",
     "subparams": {        
         "BudgetAmount": "1000",
         "CIDR": "192.168.0.0/24",

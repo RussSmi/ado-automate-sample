@@ -1,0 +1,8 @@
+{
+  "ado-auth": {
+    "type": "Object",
+    "value": {
+      "type": "ManagedServiceIdentity"
+    }
+  }
+}

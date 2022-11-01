@@ -1,0 +1,10 @@
+{
+  "ado-auth": {
+    "type": "Object",
+    "value": {
+      "scheme": "Key",
+      "parameter": "@appsetting('visualstudioteamservices-connectionKey')",
+      "type": "Raw"
+    }
+  }
+}
