@@ -83,6 +83,7 @@ stages:
               Contents: |
                 host.json
                 connections.json
+                parameters.json
                 Artifacts/**/*
                 la-commitfile/**
                 la-commitfile-gh/**
