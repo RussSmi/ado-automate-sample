@@ -171,10 +171,12 @@ resource kvaccess 'Microsoft.KeyVault/vaults/accessPolicies@2019-09-01' = {
   properties: {
     accessPolicies: [
       {
-        applicationId: siteLogicApp.identity.principalId
         objectId: siteLogicApp.identity.principalId
         permissions: {
-          secrets: ['All']
+          secrets: [
+                    'list'
+                    'get'
+                  ]
         }
         tenantId: subscription().tenantId
       }
