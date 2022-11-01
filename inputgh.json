@@ -1,8 +1,8 @@
 {
     "owner":"RussSmi",
     "repo":"Demos",
-    "newbranchname":"autocreate10",
-    "filename":"demoparamsfile2.json",
+    "newbranchname":"autocreate11",
+    "filename":"demoparamsfile3.json",
     "subparams": {        
         "BudgetAmount": "1000",
         "CIDR": "192.168.0.0/24",
