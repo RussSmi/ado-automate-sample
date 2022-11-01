@@ -8,7 +8,8 @@
     "WORKFLOWS_RESOURCE_GROUP_NAME": "",
     "WORKFLOWS_LOCATION_NAME": "uksouth",
     "WORKFLOWS_MANAGEMENT_BASE_URI": "https://management.azure.com/",
-    "visualstudioteamservices-connectionKey": "",
-    "GitHubPATSecret": ""
+    "visualstudioteamservices-connectionKey": "<Run the apiconnections.bicep to generate this key>",
+    "api-ado-connectionRuntimeUrl": "<Get the connection runtime url from api connection deployed with apiconnections.bicep>"
+    "GitHubPATSecret": "<In github generate a PAT and place it here for local dev, when deployed, use KV>"
   }
 }

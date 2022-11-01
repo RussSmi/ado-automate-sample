@@ -66,6 +66,16 @@ stages:
                 cd bicep
                 az deployment group create --name apiconndeploy -g $(resourceGroupName) --template-file apiconnections.bicep
 
+          - task: AzureCLI@2
+            displayName: 'Azure CLI Rename logic apps params files'
+            inputs:
+              azureSubscription: $(devAzureServiceConnection)
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                mv ./parameters.json ./parameters.local.json
+                mv ./parameters.portal.json ./parameters.json
+
           - task: CopyFiles@2
             displayName: 'Copy Logic App Files to logic-app'
             inputs:
