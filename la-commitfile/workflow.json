@@ -83,7 +83,7 @@
                                     "method": "post",
                                     "body": {
                                         "Method": "GET",
-                                        "Uri": "@{triggerBody()?['projectname']}/_apis/git/repositories/@{variables('varRepoId')}/refs?filter=heads/main&api-version=5.1"
+                                        "Uri": "@{encodeUriComponent(triggerBody()?['projectname'])}/_apis/git/repositories/@{variables('varRepoId')}/refs?filter=heads/main&api-version=5.1"
                                     },
                                     "path": "/httprequest",
                                     "queries": {
@@ -473,6 +473,311 @@
                                                     }
                                                 },
                                                 "runAfter": {}
+                                            },
+                                            "Condition": {
+                                                "type": "If",
+                                                "expression": {
+                                                    "and": [
+                                                        {
+                                                            "not": {
+                                                                "equals": [
+                                                                    "@empty(triggerBody()?['prautocompleteobjid'])",
+                                                                    "@true"
+                                                                ]
+                                                            }
+                                                        }
+                                                    ]
+                                                },
+                                                "actions": {
+                                                    "Parse_PR_Result": {
+                                                        "type": "ParseJson",
+                                                        "inputs": {
+                                                            "content": "@body('Send_an_HTTP_request_to_Azure_DevOps')",
+                                                            "schema": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "repository": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "id": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "name": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "url": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "project": {
+                                                                                "type": "object",
+                                                                                "properties": {
+                                                                                    "id": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "name": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "url": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "state": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "revision": {
+                                                                                        "type": "integer"
+                                                                                    },
+                                                                                    "visibility": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "lastUpdateTime": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "size": {
+                                                                                "type": "integer"
+                                                                            },
+                                                                            "remoteUrl": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "sshUrl": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "webUrl": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "isDisabled": {
+                                                                                "type": "boolean"
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    "pullRequestId": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "codeReviewId": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "status": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "createdBy": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "displayName": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "url": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "_links": {
+                                                                                "type": "object",
+                                                                                "properties": {
+                                                                                    "avatar": {
+                                                                                        "type": "object",
+                                                                                        "properties": {
+                                                                                            "href": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "id": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "uniqueName": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "imageUrl": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "descriptor": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    "creationDate": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "title": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "description": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "sourceRefName": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "targetRefName": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "mergeStatus": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "isDraft": {
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "mergeId": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "lastMergeSourceCommit": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "commitId": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "url": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    "lastMergeTargetCommit": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "commitId": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "url": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    "reviewers": {
+                                                                        "type": "array"
+                                                                    },
+                                                                    "labels": {
+                                                                        "type": "array"
+                                                                    },
+                                                                    "url": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "_links": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "self": {
+                                                                                "type": "object",
+                                                                                "properties": {
+                                                                                    "href": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "repository": {
+                                                                                "type": "object",
+                                                                                "properties": {
+                                                                                    "href": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "workItems": {
+                                                                                "type": "object",
+                                                                                "properties": {
+                                                                                    "href": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "sourceBranch": {
+                                                                                "type": "object",
+                                                                                "properties": {
+                                                                                    "href": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "targetBranch": {
+                                                                                "type": "object",
+                                                                                "properties": {
+                                                                                    "href": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "statuses": {
+                                                                                "type": "object",
+                                                                                "properties": {
+                                                                                    "href": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "sourceCommit": {
+                                                                                "type": "object",
+                                                                                "properties": {
+                                                                                    "href": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "targetCommit": {
+                                                                                "type": "object",
+                                                                                "properties": {
+                                                                                    "href": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "createdBy": {
+                                                                                "type": "object",
+                                                                                "properties": {
+                                                                                    "href": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "iterations": {
+                                                                                "type": "object",
+                                                                                "properties": {
+                                                                                    "href": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    "supportsIterations": {
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "artifactId": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
+                                                            }
+                                                        },
+                                                        "runAfter": {}
+                                                    },
+                                                    "Send_an_HTTP_request_to_Azure_DevOps_2": {
+                                                        "type": "ApiConnection",
+                                                        "inputs": {
+                                                            "host": {
+                                                                "connection": {
+                                                                    "referenceName": "visualstudioteamservices"
+                                                                }
+                                                            },
+                                                            "method": "post",
+                                                            "body": {
+                                                                "Method": "PATCH",
+                                                                "Uri": "@{triggerBody()?['projectname']}/_apis/git/repositories/@{variables('varRepoId')}/pullrequests/@{body('Parse_PR_Result')?['pullRequestId']}?api-version=6.0",
+                                                                "Body": "{\n   \"autoCompleteSetBy\": \"@{triggerBody()?['prautocompleteobjid']}\"\n}"
+                                                            },
+                                                            "path": "/httprequest",
+                                                            "queries": {
+                                                                "account": "@triggerBody()?['orgname']"
+                                                            }
+                                                        },
+                                                        "runAfter": {
+                                                            "Parse_PR_Result": [
+                                                                "Succeeded"
+                                                            ]
+                                                        }
+                                                    }
+                                                },
+                                                "runAfter": {
+                                                    "Send_an_HTTP_request_to_Azure_DevOps": [
+                                                        "Succeeded"
+                                                    ]
+                                                }
                                             }
                                         },
                                         "runAfter": {
@@ -520,6 +825,9 @@
                                 "type": "string"
                             },
                             "filename": {
+                                "type": "string"
+                            },
+                            "prautocompleteobjid": {
                                 "type": "string"
                             },
                             "subparams": {

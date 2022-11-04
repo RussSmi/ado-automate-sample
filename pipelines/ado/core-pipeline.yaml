@@ -57,16 +57,6 @@ stages:
                 az deployment group create --name fnappdeploy -g $(resourceGroupName) --template-file fnapp.bicep
 
           - task: AzureCLI@2
-            displayName: 'Azure CLI Deploy API Connection'
-            inputs:
-              azureSubscription: $(devAzureServiceConnection)
-              scriptType: bash
-              scriptLocation: inlineScript
-              inlineScript: |
-                cd bicep
-                az deployment group create --name apiconndeploy -g $(resourceGroupName) --template-file apiconnections.bicep
-
-          - task: AzureCLI@2
             displayName: 'Azure CLI Rename logic apps params files'
             inputs:
               azureSubscription: $(devAzureServiceConnection)

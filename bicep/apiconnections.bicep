@@ -26,6 +26,9 @@ var validityTimeSpan ={
 }
 
 var key = devopsconn.listConnectionKeys('2018-07-01-preview',validityTimeSpan).connectionKey
-output retval string = key
+output apiKey string = key
+
+var url = devopsconn.properties.connectionRuntimeUrl
+output connRuntimeUrl string = any(url)
 
 

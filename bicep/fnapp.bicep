@@ -81,6 +81,9 @@ resource secret 'Microsoft.KeyVault/vaults/secrets@2019-09-01' existing = {
   name: '${keyVaultName}/${githubPATSecretName}'
 }
 
+module apiconn 'apiconnections.bicep' = {
+  name: '${deployment().name}-apiConnDeploy'
+}
 // App service containing the workflow runtime ///
 resource siteLogicApp 'Microsoft.Web/sites@2021-02-01' = {
   name: logicAppName
@@ -143,7 +146,7 @@ resource siteLogicApp 'Microsoft.Web/sites@2021-02-01' = {
         }        
         {
           name: 'api-ado-connectionRuntimeUrl'
-          value: 'https://06b137eff4fe3023.01.common.logic-uksouth.azure-apihub.net/apim/visualstudioteamservices/36e660ba523f4793801d61ef1471f773'
+          value: apiconn.outputs.connRuntimeUrl
         }
         {
           name: 'WORKFLOWS_SUBSCRIPTION_ID'
