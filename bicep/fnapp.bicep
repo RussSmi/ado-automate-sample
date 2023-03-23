@@ -8,7 +8,7 @@ param githubPATSecretName string = 'GitHubPATSecret'
 
 
 var name = 'commitfile'
-var logicAppName = 'logic-app-${name}-${environment}'
+var logicAppName = 'logicapp-${name}-${environment}'
 var minimumElasticSize = 1
 var maximumElasticSize = 3
 @description('Name of KeyVault to Store SaS Token')
