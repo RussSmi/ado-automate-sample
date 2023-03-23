@@ -15,7 +15,7 @@ variables:
   prodAzureServiceConnection: 'russ-airs'
   location: 'uksouth'
   resourceGroupName: 'rg-devops-automate'
-  logicAppName: 'logic-app-commitfile-dev'
+  logicAppName: 'logicapp-commitfile-dev'
 
 stages:
 - stage: 'dev_deploy'
