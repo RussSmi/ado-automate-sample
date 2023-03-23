@@ -8,3 +8,4 @@ local.settings.json
 connections.json
 connections.json.portal
 
+bicep/apiconnections.json

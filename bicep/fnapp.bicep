@@ -15,7 +15,7 @@ var maximumElasticSize = 3
 var keyVaultName  = 'kvadoautomate${environment}'
 
 resource logicAppStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-  name: 'st4logicapp${name}${environment}'
+  name: 'st5logicapp${name}${environment}'
   location: location
   kind: 'StorageV2'
   sku: {
