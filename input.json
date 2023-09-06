@@ -1,9 +1,9 @@
 {
-    "orgname":"rusmith",
-    "projectname":"Space Test",
-    "reponame":"Space Test",
-    "newbranchname":"autocreate04-11-22-5",
-    "filename":"demoparamsfile5.json",
+    "orgname":"rusmith-msft",
+    "projectname":"Demos",
+    "reponame":"Demos",
+    "newbranchname":"autocreate24-03-23-1",
+    "filename":"demoparamsfile7.json",
     "prautocompleteobjid":"96b43a71-7601-4719-9235-eff0b530b157",
     "subparams": {        
         "BudgetAmount": "1000",
